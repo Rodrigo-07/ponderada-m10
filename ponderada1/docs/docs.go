@@ -17,6 +17,124 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/create-game": {
+            "post": {
+                "description": "Cria e persiste um novo jogo no banco",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Cria um novo jogo singleplayer",
+                "parameters": [
+                    {
+                        "description": "Dados do jogo",
+                        "name": "game",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Singleplayer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Singleplayer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/deck/shuffle": {
+            "get": {
+                "description": "Embaralha um novo baralho de cartas",
+                "tags": [
+                    "deck"
+                ],
+                "summary": "Embaralhar baralho",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Número de baralhos (default: 1)",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Baralho embaralhado",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/get-games": {
+            "get": {
+                "description": "Retorna todos os registros de jogos",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Lista todos os jogos singleplayer",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Singleplayer"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/weather/current": {
             "get": {
                 "description": "Consulta a temperatura atual via Open-Meteo",
@@ -59,6 +177,37 @@ const docTemplate = `{
                             }
                         }
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.Singleplayer": {
+            "type": "object",
+            "properties": {
+                "deck_id": {
+                    "type": "string"
+                },
+                "drawn_cards": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "game_id": {
+                    "type": "string"
+                },
+                "moves": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "player_name": {
+                    "type": "string"
+                },
+                "result": {
+                    "type": "string"
                 }
             }
         }

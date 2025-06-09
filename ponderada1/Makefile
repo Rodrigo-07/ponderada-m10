@@ -1,4 +1,4 @@
-.PHONY: swag tidy run
+.PHONY: swag tidy run db down dev
 
 tidy:
 	go mod tidy
@@ -8,3 +8,11 @@ swag: tidy
 
 run:
 	go run ./cmd/server
+
+db:
+	docker compose up -d
+
+down:
+	docker compose down
+
+dev: db swag run

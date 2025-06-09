@@ -8,7 +8,9 @@ import (
 
 	"ponderada1/config"
 	_ "ponderada1/docs"
+	"ponderada1/internal/db"
 	"ponderada1/internal/handler"
+	"ponderada1/internal/model"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -25,6 +27,9 @@ import (
 func main() {
 	config.LoadEnv() // lê variáveis de ambiente
 
+	db := db.GetDB()
+	_ = db.AutoMigrate(&model.Singleplayer{})
+
 	r := gin.Default()
 
 	// Documentação
@@ -32,9 +37,10 @@ func main() {
 
 	// Rotas de domínio
 	v1 := r.Group("/api/v1")
-	{
-		handler.RegisterWeatherRoutes(v1)
-	}
+
+	handler.RegisterDeckRoutes(v1)
+
+	handler.RegisterGameRoutes(v1)
 
 	port := os.Getenv("PORT")
 	if port == "" {
