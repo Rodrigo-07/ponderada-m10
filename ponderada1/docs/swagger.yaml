@@ -1,0 +1,42 @@
+basePath: /api/v1
+host: localhost:8080
+info:
+  contact:
+    name: Rodrigo
+  description: Exemplo de API em Go + Gin com Swagger e integração externa.
+  title: Weather API Template
+  version: "1.0"
+paths:
+  /weather/current:
+    get:
+      description: Consulta a temperatura atual via Open-Meteo
+      parameters:
+      - description: Latitude
+        in: query
+        name: lat
+        required: true
+        type: number
+      - description: Longitude
+        in: query
+        name: lon
+        required: true
+        type: number
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: number
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Temperatura atual
+      tags:
+      - weather
+schemes:
+- http
+swagger: "2.0"
