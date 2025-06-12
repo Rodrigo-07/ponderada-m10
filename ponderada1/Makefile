@@ -15,4 +15,8 @@ db:
 down:
 	docker compose down
 
+reset:
+	docker compose down
+	docker volume rm ponderada1_postgres_data
+
 dev: db swag run

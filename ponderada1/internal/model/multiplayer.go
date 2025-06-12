@@ -1,7 +1,7 @@
 package model
 
 type Multiplayer struct {
-	GameID            string   `json:"game_id"`
+	GameID     string   `gorm:"primaryKey;default:gen_random_uuid()" json:"game_id"`
 	Player1Name       string   `json:"player1_name"`
 	Player2Name       string   `json:"player2_name"`
 	Result            string   `json:"result"` // "player1", "player2", or "draw"

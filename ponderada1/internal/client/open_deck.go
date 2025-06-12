@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"ponderada1/internal/model"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -18,16 +19,43 @@ func NewOpenDeckClient() *OpenDeckClient {
 	}
 }
 
-func (c *OpenDeckClient) ShuffleNewDeck(deckCount int) (string, error) {
+func (c *OpenDeckClient) ShuffleNewDeck(deckCount int) (*model.Deck, error) {
 	url := fmt.Sprintf("%snew/shuffle/?deck_count=%d", c.baseURL, deckCount)
-	resp, err := c.rest.R().Get(url)
+
+	var deck model.Deck
+	resp, err := c.rest.R().
+		SetResult(&deck).
+		Get(url)
+
 	if err != nil {
-		return "", err
+		return nil, fmt.Errorf("erro na requisição: %w", err)
 	}
 
 	if resp.IsError() {
-		return "", fmt.Errorf("error response: %s", resp.Status())
+		return nil, fmt.Errorf("erro da API: %s", resp.Status())
 	}
 
-	return resp.String(), nil
+	return &deck, nil
+}
+
+func (c *OpenDeckClient) DrawCards(deckID string, count int) (*model.DrawnCards, error) {
+	url := fmt.Sprintf("%s%s/draw/?count=%d", c.baseURL, deckID, count)
+
+	fmt.Printf("Fazendo requisição para:")
+	fmt.Println(url)
+
+	var drawnCards model.DrawnCards
+	resp, err := c.rest.R().
+		SetResult(&drawnCards).
+		Get(url)
+
+	if err != nil {
+		return nil, fmt.Errorf("erro na requisição: %w", err)
+	}
+
+	if resp.IsError() {
+		return nil, fmt.Errorf("erro da API: %s", resp.Status())
+	}
+
+	return &drawnCards, nil
 }

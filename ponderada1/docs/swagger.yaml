@@ -1,7 +1,26 @@
 basePath: /api/v1
 definitions:
+  model.CreateSinlgePlayerGameRequest:
+    properties:
+      player_name:
+        type: string
+    required:
+    - player_name
+    type: object
+  model.MakeMoveSinglePlayerRequest:
+    properties:
+      game_id:
+        type: string
+      move:
+        type: string
+    required:
+    - game_id
+    - move
+    type: object
   model.Singleplayer:
     properties:
+      card_sum:
+        type: integer
       deck_id:
         type: string
       drawn_cards:
@@ -38,7 +57,7 @@ paths:
         name: game
         required: true
         schema:
-          $ref: '#/definitions/model.Singleplayer'
+          $ref: '#/definitions/model.CreateSinlgePlayerGameRequest'
       produces:
       - application/json
       responses:
@@ -102,6 +121,40 @@ paths:
               type: string
             type: object
       summary: Lista todos os jogos singleplayer
+      tags:
+      - games
+  /make-move-singleplayer:
+    post:
+      consumes:
+      - application/json
+      description: Cria e persiste um novo jogo no banco
+      parameters:
+      - description: Dados do jogo
+        in: body
+        name: game
+        required: true
+        schema:
+          $ref: '#/definitions/model.MakeMoveSinglePlayerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Singleplayer'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Cria um novo jogo singleplayer
       tags:
       - games
   /weather/current:

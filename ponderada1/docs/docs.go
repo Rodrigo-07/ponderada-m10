@@ -37,7 +37,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Singleplayer"
+                            "$ref": "#/definitions/model.CreateSinlgePlayerGameRequest"
                         }
                     }
                 ],
@@ -135,6 +135,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/make-move-singleplayer": {
+            "post": {
+                "description": "Cria e persiste um novo jogo no banco",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Cria um novo jogo singleplayer",
+                "parameters": [
+                    {
+                        "description": "Dados do jogo",
+                        "name": "game",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.MakeMoveSinglePlayerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Singleplayer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/weather/current": {
             "get": {
                 "description": "Consulta a temperatura atual via Open-Meteo",
@@ -182,9 +234,38 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.CreateSinlgePlayerGameRequest": {
+            "type": "object",
+            "required": [
+                "player_name"
+            ],
+            "properties": {
+                "player_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MakeMoveSinglePlayerRequest": {
+            "type": "object",
+            "required": [
+                "game_id",
+                "move"
+            ],
+            "properties": {
+                "game_id": {
+                    "type": "string"
+                },
+                "move": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Singleplayer": {
             "type": "object",
             "properties": {
+                "card_sum": {
+                    "type": "integer"
+                },
                 "deck_id": {
                     "type": "string"
                 },

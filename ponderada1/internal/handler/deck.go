@@ -42,5 +42,5 @@ func (h *DeckHandler) shuffle(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.String(http.StatusOK, result)
+	c.String(http.StatusOK, result.DeckID)
 }
