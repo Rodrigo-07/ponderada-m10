@@ -199,7 +199,7 @@ func (h *MultiplayerGameHandler) makeMoveMultiplayer(c *gin.Context) {
 		card := draw.Cards[0]
 
 		*extras = append(*extras, card.Code)
-		*score += h.deckSvc.CardValue(card.Value)
+		*score += h.deckSvc.CardValue(card.Code)
 		*moves = append(*moves, "draw")
 
 		// estourou  -> define vencedor imediatamente
@@ -244,7 +244,7 @@ func codesAndScore(cards []model.Card, deckSvc *service.DeckService) ([]string, 
 	sum := 0
 	for _, c := range cards {
 		codes = append(codes, c.Code)
-		sum += deckSvc.CardValue(c.Value)
+		sum += deckSvc.CardValue(c.Code)
 	}
 	return codes, sum
 }

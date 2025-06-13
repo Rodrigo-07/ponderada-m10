@@ -157,7 +157,7 @@ func (h *SinglePlayerGameHandler) makeMoveSinglePlayer(c *gin.Context) {
 		// Get card values and calculate the sum
 		cardValuesSum := 0
 		for _, card := range drawnCards.Cards {
-			cardValuesSum += h.deckSvc.CardValue(card.Value)
+			cardValuesSum += h.deckSvc.CardValue(card.Code)
 		}
 
 		cardValuesSum += gameinfo.CardsSum
