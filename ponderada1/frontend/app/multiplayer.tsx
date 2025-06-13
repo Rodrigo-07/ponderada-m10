@@ -183,13 +183,9 @@ export default function Multiplayer() {
             <ScaledCard key={`ov-${i}`} code={c} scale={0.8} />
           ))}
           <ScaledCard code={oppHid} hidden={!finished} scale={0.8} />
+
           {(oppExtra ?? []).map((c, i) => (
-            <ScaledCard
-              key={`ox-${i}`}
-              code={c}
-              hidden={!finished}
-              scale={0.8}
-            />
+            <ScaledCard key={`ox-${i}`} code={c} scale={0.8} />
           ))}
         </View>
 
