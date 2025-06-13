@@ -65,65 +65,65 @@ func (h *MultiplayerGameHandler) getMultiplayerGame(c *gin.Context) {
 // @Failure 500 {object} map[string]string "erro interno do servidor"
 // @Router /create-game-multiplayer [post]
 func (h *MultiplayerGameHandler) createGameMultiplayer(c *gin.Context) {
-    var req model.CreateMultiplayerGameRequest
-    if err := c.ShouldBindJSON(&req); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "dados inválidos"})
-        return
-    }
+	var req model.CreateMultiplayerGameRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "dados inválidos"})
+		return
+	}
 
-    deck, err := h.deckSvc.ShuffleNewDeck(1)
-    if err != nil {
-        c.JSON(500, gin.H{"error": err.Error()})
-        return
-    }
+	deck, err := h.deckSvc.ShuffleNewDeck(1)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
 
-    /* ----- compra exatamente 2 cartas para cada jogador ----- */
-    p1, err := h.deckSvc.DrawCards(deck.DeckID, 2)
-    if err != nil || len(p1.Cards) < 2 {
-        c.JSON(500, gin.H{"error": "falha ao comprar cartas p/ jogador 1"})
-        return
-    }
-    p2, err := h.deckSvc.DrawCards(deck.DeckID, 2)
-    if err != nil || len(p2.Cards) < 2 {
-        c.JSON(500, gin.H{"error": "falha ao comprar cartas p/ jogador 2"})
-        return
-    }
+	/* ----- compra exatamente 2 cartas para cada jogador ----- */
+	p1, err := h.deckSvc.DrawCards(deck.DeckID, 2)
+	if err != nil || len(p1.Cards) < 2 {
+		c.JSON(500, gin.H{"error": "falha ao comprar cartas p/ jogador 1"})
+		return
+	}
+	p2, err := h.deckSvc.DrawCards(deck.DeckID, 2)
+	if err != nil || len(p2.Cards) < 2 {
+		c.JSON(500, gin.H{"error": "falha ao comprar cartas p/ jogador 2"})
+		return
+	}
 
-    vis1 := model.StringArray{p1.Cards[0].Code}
-    hid1 := p1.Cards[1].Code
+	vis1 := model.StringArray{p1.Cards[0].Code}
+	hid1 := p1.Cards[1].Code
 
-    vis2 := model.StringArray{p2.Cards[0].Code}
-    hid2 := p2.Cards[1].Code
+	vis2 := model.StringArray{p2.Cards[0].Code}
+	hid2 := p2.Cards[1].Code
 
-    s1 := h.deckSvc.CardValue(p1.Cards[0].Code) +
-          h.deckSvc.CardValue(p1.Cards[1].Code)
+	s1 := h.deckSvc.CardValue(p1.Cards[0].Code) +
+		h.deckSvc.CardValue(p1.Cards[1].Code)
 
-    s2 := h.deckSvc.CardValue(p2.Cards[0].Code) +
-          h.deckSvc.CardValue(p2.Cards[1].Code)
+	s2 := h.deckSvc.CardValue(p2.Cards[0].Code) +
+		h.deckSvc.CardValue(p2.Cards[1].Code)
 
-    game := model.Multiplayer{
-        Player1Name: req.Player1Name,
-        Player2Name: req.Player2Name,
-        Result:      "in_progress",
-        DeckID:      deck.DeckID,
+	game := model.Multiplayer{
+		Player1Name: req.Player1Name,
+		Player2Name: req.Player2Name,
+		Result:      "in_progress",
+		DeckID:      deck.DeckID,
 
-        Player1VisibleCards: vis1, Player1HiddenCard: hid1,
-        Player2VisibleCards: vis2, Player2HiddenCard: hid2,
+		Player1VisibleCards: vis1, Player1HiddenCard: hid1,
+		Player2VisibleCards: vis2, Player2HiddenCard: hid2,
 
-        Player1ExtraCards: model.StringArray{}, Player2ExtraCards: model.StringArray{},
-        Player1Moves: model.StringArray{},     Player2Moves:      model.StringArray{},
-        Player1Score: s1, Player2Score: s2,
+		Player1ExtraCards: model.StringArray{}, Player2ExtraCards: model.StringArray{},
+		Player1Moves: model.StringArray{}, Player2Moves: model.StringArray{},
+		Player1Score: s1, Player2Score: s2,
 
-        CurrentTurn: "player1",
-        Round:       1,
-    }
+		CurrentTurn: "player1",
+		Round:       1,
+	}
 
-    created, err := h.gameSvc.CreateMultiplayer(game)
-    if err != nil {
-        c.JSON(500, gin.H{"error": err.Error()})
-        return
-    }
-    c.JSON(http.StatusCreated, created)
+	created, err := h.gameSvc.CreateMultiplayer(game)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, created)
 }
 
 // @Summary Realiza uma jogada em um jogo multiplayer
@@ -154,41 +154,39 @@ func (h *MultiplayerGameHandler) makeMoveMultiplayer(c *gin.Context) {
 		return
 	}
 
-	/* ---------- 2. Identifica jogador ---------- */
 	var (
 		isP1   bool
 		moves  *model.StringArray
 		extras *model.StringArray
 		score  *int
-		stop   *bool
 	)
+
 	switch req.PlayerName {
 	case game.Player1Name:
 		isP1 = true
-		moves, extras, score, stop =
-			&game.Player1Moves, &game.Player1ExtraCards, &game.Player1Score, &game.Player1Stop
+		moves, extras, score =
+			&game.Player1Moves, &game.Player1ExtraCards, &game.Player1Score
 	case game.Player2Name:
-		moves, extras, score, stop =
-			&game.Player2Moves, &game.Player2ExtraCards, &game.Player2Score, &game.Player2Stop
+		moves, extras, score =
+			&game.Player2Moves, &game.Player2ExtraCards, &game.Player2Score
 	default:
 		c.JSON(http.StatusBadRequest, gin.H{"error": "nome de jogador inválido"})
 		return
 	}
 
-	/* ---------- 2.1 Confere vez ---------- */
+	// verifica de quem e o turno
 	if (isP1 && game.CurrentTurn != "player1") ||
 		(!isP1 && game.CurrentTurn != "player2") {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "não é sua vez"})
 		return
 	}
 
-	/* ---------- 3. Máx. 3 jogadas ---------- */
 	if len(*moves) >= 3 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "máx 3 rodadas"})
 		return
 	}
 
-	/* ---------- 4. Executa ação ---------- */
+	// executa a ação
 	switch req.Move {
 	case "draw":
 		draw, derr := h.deckSvc.DrawCards(game.DeckID, 1)
@@ -203,9 +201,9 @@ func (h *MultiplayerGameHandler) makeMoveMultiplayer(c *gin.Context) {
 		*moves = append(*moves, "draw")
 
 		// estourou  -> define vencedor imediatamente
-		if *score > 21 {
-			*stop = true
-		}
+		// if *score > 21 {
+		// 	*stop = true
+		// }
 
 	case "pass":
 		*moves = append(*moves, "pass")
@@ -215,17 +213,16 @@ func (h *MultiplayerGameHandler) makeMoveMultiplayer(c *gin.Context) {
 		return
 	}
 
-	/* ---------- 5. Avança turno/rodada se jogo continua ---------- */
 	if game.Result == "in_progress" {
 		if game.CurrentTurn == "player1" {
 			game.CurrentTurn = "player2"
 		} else {
 			game.CurrentTurn = "player1"
-			game.Round++ // nova rodada quando os dois já jogaram
+			game.Round++
 		}
 
 		// Finaliza se chegaram a 3 rodadas ou ambos pararam manualmente
-		if game.Round > 3 || (game.Player1Stop && game.Player2Stop) {
+		if game.Round > 3 {
 			game.Result = decideWinner(game)
 		}
 	}

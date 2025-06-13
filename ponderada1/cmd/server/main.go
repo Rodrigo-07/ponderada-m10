@@ -11,6 +11,7 @@ import (
 	"ponderada1/internal/db"
 	"ponderada1/internal/handler"
 	"ponderada1/internal/model"
+	"github.com/gin-contrib/cors"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -31,6 +32,8 @@ func main() {
 	_ = db.AutoMigrate(&model.Singleplayer{}, &model.Multiplayer{})
 
 	r := gin.Default()
+
+	r.Use(cors.Default())
 
 	// Documentação
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

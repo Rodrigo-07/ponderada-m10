@@ -160,7 +160,7 @@ export default function Multiplayer() {
   const meScore = p1Turn ? game.player1_score : game.player2_score;
   const busted = meScore > 21;
   const finished = game.result === 'player1' || game.result === 'player2' || game.result === 'draw';
-  
+    
   const myHandNow = [...meVis, meHid, ...(meExtra ?? [])].filter(Boolean);
 
   return (
