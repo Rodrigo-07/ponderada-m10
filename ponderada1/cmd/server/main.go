@@ -28,7 +28,7 @@ func main() {
 	config.LoadEnv() // lê variáveis de ambiente
 
 	db := db.GetDB()
-	_ = db.AutoMigrate(&model.Singleplayer{})
+	_ = db.AutoMigrate(&model.Singleplayer{}, &model.Multiplayer{})
 
 	r := gin.Default()
 
@@ -40,14 +40,16 @@ func main() {
 
 	handler.RegisterDeckRoutes(v1)
 
-	handler.RegisterGameRoutes(v1)
+	handler.RegisterSinglePlayerGameRoutes(v1)
+
+	handler.RegisterMultiplayerGameRoutes(v1)
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 	log.Printf("server listening on %s", port)
-	if err := r.Run(":" + port); err != nil {
+	if err := r.Run("0.0.0.0:" + port); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -1,10 +1,37 @@
 basePath: /api/v1
 definitions:
+  model.CreateMultiplayerGameRequest:
+    properties:
+      player1_name:
+        type: string
+      player2_name:
+        type: string
+    required:
+    - player1_name
+    - player2_name
+    type: object
   model.CreateSinlgePlayerGameRequest:
     properties:
       player_name:
         type: string
     required:
+    - player_name
+    type: object
+  model.MakeMoveMultiplayerRequest:
+    properties:
+      game_id:
+        type: string
+      move:
+        enum:
+        - draw
+        - pass
+        - stop
+        type: string
+      player_name:
+        type: string
+    required:
+    - game_id
+    - move
     - player_name
     type: object
   model.MakeMoveSinglePlayerRequest:
@@ -16,6 +43,62 @@ definitions:
     required:
     - game_id
     - move
+    type: object
+  model.Multiplayer:
+    properties:
+      current_turn:
+        description: player1 | player2
+        type: string
+      deck_id:
+        type: string
+      game_id:
+        type: string
+      player1_extra:
+        items:
+          type: string
+        type: array
+      player1_hidden:
+        type: string
+      player1_moves:
+        items:
+          type: string
+        type: array
+      player1_name:
+        type: string
+      player1_score:
+        type: integer
+      player1_stop:
+        type: boolean
+      player1_visible:
+        items:
+          type: string
+        type: array
+      player2_extra:
+        items:
+          type: string
+        type: array
+      player2_hidden:
+        type: string
+      player2_moves:
+        items:
+          type: string
+        type: array
+      player2_name:
+        type: string
+      player2_score:
+        type: integer
+      player2_stop:
+        type: boolean
+      player2_visible:
+        items:
+          type: string
+        type: array
+      result:
+        description: in_progress | player1 | player2 | draw
+        type: string
+      round:
+        description: 1-based (1,2,3)
+        type: integer
     type: object
   model.Singleplayer:
     properties:
@@ -80,6 +163,41 @@ paths:
       summary: Cria um novo jogo singleplayer
       tags:
       - games
+  /create-game-multiplayer:
+    post:
+      consumes:
+      - application/json
+      description: Inicializa um jogo multiplayer com dois jogadores, cada um utilizando
+        um baralho independente.
+      parameters:
+      - description: Dados para criação do jogo multiplayer
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateMultiplayerGameRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Multiplayer'
+        "400":
+          description: dados inválidos
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: erro interno do servidor
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Cria um novo jogo multiplayer
+      tags:
+      - games
   /deck/shuffle:
     get:
       description: Embaralha um novo baralho de cartas
@@ -121,6 +239,62 @@ paths:
               type: string
             type: object
       summary: Lista todos os jogos singleplayer
+      tags:
+      - games
+  /get-multiplayer-games:
+    get:
+      description: Retorna todos os registros de jogos multiplayer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Multiplayer'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Lista todos os jogos multiplayer
+      tags:
+      - games
+  /make-move-multiplayer:
+    post:
+      consumes:
+      - application/json
+      description: Permite que um jogador realize uma jogada em um jogo multiplayer.
+        As jogadas podem ser "draw", "pass" ou "stop".
+      parameters:
+      - description: Dados para realizar a jogada
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.MakeMoveMultiplayerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Multiplayer'
+        "400":
+          description: dados inválidos ou erro de jogada
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: erro interno do servidor
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Realiza uma jogada em um jogo multiplayer
       tags:
       - games
   /make-move-singleplayer:

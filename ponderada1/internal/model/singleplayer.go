@@ -2,7 +2,7 @@ package model
 
 import "github.com/lib/pq"
 
-type StringArray []string
+// type StringArray []string
 
 type Singleplayer struct {
 	GameID     *string        `gorm:"primaryKey;default:gen_random_uuid()" json:"game_id,omitempty"`

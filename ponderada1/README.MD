@@ -56,3 +56,12 @@ http://localhost:8080/swagger/index.html
     - Valor que falta para 21
 
 Idea=buff de um jogador poder colocar uma carta na mão do oponente
+
+
+Esta quase la, mas eu quero que meu jogo funcione por rodadas e tenha duas cartas que o oponente vai ver e uma que o oponente não vai ver.
+
+
+rodada 1: acção do player 1 e 2 (pass ou draw)
+resultado -> se acabou ou nao ou quem foi o ganhador.
+
+Ate estourar o numero maximo de jogadas de 3

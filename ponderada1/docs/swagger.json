@@ -66,6 +66,58 @@
                 }
             }
         },
+        "/create-game-multiplayer": {
+            "post": {
+                "description": "Inicializa um jogo multiplayer com dois jogadores, cada um utilizando um baralho independente.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Cria um novo jogo multiplayer",
+                "parameters": [
+                    {
+                        "description": "Dados para criação do jogo multiplayer",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateMultiplayerGameRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Multiplayer"
+                        }
+                    },
+                    "400": {
+                        "description": "dados inválidos",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "erro interno do servidor",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/deck/shuffle": {
             "get": {
                 "description": "Embaralha um novo baralho de cartas",
@@ -122,6 +174,90 @@
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/get-multiplayer-games": {
+            "get": {
+                "description": "Retorna todos os registros de jogos multiplayer",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Lista todos os jogos multiplayer",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Multiplayer"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/make-move-multiplayer": {
+            "post": {
+                "description": "Permite que um jogador realize uma jogada em um jogo multiplayer. As jogadas podem ser \"draw\", \"pass\" ou \"stop\".",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Realiza uma jogada em um jogo multiplayer",
+                "parameters": [
+                    {
+                        "description": "Dados para realizar a jogada",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.MakeMoveMultiplayerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Multiplayer"
+                        }
+                    },
+                    "400": {
+                        "description": "dados inválidos ou erro de jogada",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "erro interno do servidor",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -231,12 +367,51 @@
         }
     },
     "definitions": {
+        "model.CreateMultiplayerGameRequest": {
+            "type": "object",
+            "required": [
+                "player1_name",
+                "player2_name"
+            ],
+            "properties": {
+                "player1_name": {
+                    "type": "string"
+                },
+                "player2_name": {
+                    "type": "string"
+                }
+            }
+        },
         "model.CreateSinlgePlayerGameRequest": {
             "type": "object",
             "required": [
                 "player_name"
             ],
             "properties": {
+                "player_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MakeMoveMultiplayerRequest": {
+            "type": "object",
+            "required": [
+                "game_id",
+                "move",
+                "player_name"
+            ],
+            "properties": {
+                "game_id": {
+                    "type": "string"
+                },
+                "move": {
+                    "type": "string",
+                    "enum": [
+                        "draw",
+                        "pass",
+                        "stop"
+                    ]
+                },
                 "player_name": {
                     "type": "string"
                 }
@@ -254,6 +429,89 @@
                 },
                 "move": {
                     "type": "string"
+                }
+            }
+        },
+        "model.Multiplayer": {
+            "type": "object",
+            "properties": {
+                "current_turn": {
+                    "description": "player1 | player2",
+                    "type": "string"
+                },
+                "deck_id": {
+                    "type": "string"
+                },
+                "game_id": {
+                    "type": "string"
+                },
+                "player1_extra": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "player1_hidden": {
+                    "type": "string"
+                },
+                "player1_moves": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "player1_name": {
+                    "type": "string"
+                },
+                "player1_score": {
+                    "type": "integer"
+                },
+                "player1_stop": {
+                    "type": "boolean"
+                },
+                "player1_visible": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "player2_extra": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "player2_hidden": {
+                    "type": "string"
+                },
+                "player2_moves": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "player2_name": {
+                    "type": "string"
+                },
+                "player2_score": {
+                    "type": "integer"
+                },
+                "player2_stop": {
+                    "type": "boolean"
+                },
+                "player2_visible": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "result": {
+                    "description": "in_progress | player1 | player2 | draw",
+                    "type": "string"
+                },
+                "round": {
+                    "description": "1-based (1,2,3)",
+                    "type": "integer"
                 }
             }
         },

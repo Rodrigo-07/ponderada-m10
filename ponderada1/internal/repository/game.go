@@ -75,3 +75,50 @@ func GetSingleplayerGameByID(gameID string) (*model.Singleplayer, error) {
 	}
 	return &game, nil
 }
+
+func ListMultiplayerGames() ([]model.Multiplayer, error) {
+	var games []model.Multiplayer
+	err := db.GetDB().Find(&games).Error
+	return games, err
+}
+
+func InsertMultiplayerGame(game *model.Multiplayer) (*model.Multiplayer, error) {
+	err := db.GetDB().Create(game).Error
+	if err != nil {
+		return nil, err
+	}
+	return game, nil
+}
+
+func GetMultiplayerGameByID(gameID string) (*model.Multiplayer, error) {
+	var game model.Multiplayer
+	err := db.GetDB().Where("game_id = ?", gameID).First(&game).Error
+	if err != nil {
+		return nil, err
+	}
+	return &game, nil
+}
+
+func UpdateMultiplayerGame(gameID string, updatedGame *model.Multiplayer) (*model.Multiplayer, error) {
+	var game model.Multiplayer
+
+	// Fetch the current game
+	err := db.GetDB().Where("game_id = ?", gameID).First(&game).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// Update the fields in the database
+	err = db.GetDB().Model(&game).Where("game_id = ?", gameID).Updates(updatedGame).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// Fetch the updated game
+	err = db.GetDB().Where("game_id = ?", gameID).First(&game).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &game, nil
+}

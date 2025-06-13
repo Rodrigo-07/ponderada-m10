@@ -10,13 +10,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type GameHandler struct {
+type SinglePlayerGameHandler struct {
 	gameSvc *service.GameService
 	deckSvc *service.DeckService
 }
 
-func RegisterGameRoutes(rg *gin.RouterGroup) {
-	handler := &GameHandler{
+func RegisterSinglePlayerGameRoutes(rg *gin.RouterGroup) {
+	handler := &SinglePlayerGameHandler{
 		gameSvc: service.NewGameService(),
 		deckSvc: service.NewDeckService(),
 	}
@@ -33,7 +33,7 @@ func RegisterGameRoutes(rg *gin.RouterGroup) {
 // @Success 200 {array} model.Singleplayer
 // @Failure 500 {object} map[string]string
 // @Router /get-games [get]
-func (h *GameHandler) listGames(c *gin.Context) {
+func (h *SinglePlayerGameHandler) listGames(c *gin.Context) {
 	games, err := h.gameSvc.GetAllSingleplayerGames()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "erro ao buscar jogos"})
@@ -52,7 +52,7 @@ func (h *GameHandler) listGames(c *gin.Context) {
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /create-game [post]
-func (h *GameHandler) createGameSinglePlayer(c *gin.Context) {
+func (h *SinglePlayerGameHandler) createGameSinglePlayer(c *gin.Context) {
 	var req model.CreateSinlgePlayerGameRequest
 
 	// Faz o bind do JSON para o DTO correto
@@ -68,7 +68,7 @@ func (h *GameHandler) createGameSinglePlayer(c *gin.Context) {
 	}
 
 	// Give 3 cards to the player
-	drawnCards, err := h.deckSvc.DrawCards(deckResp.DeckID, 3)
+	drawnCards, err := h.deckSvc.DrawCards(deckResp.DeckID, 2)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "erro ao desenhar cartas"})
 		return
@@ -81,14 +81,13 @@ func (h *GameHandler) createGameSinglePlayer(c *gin.Context) {
 	// Get the values of the drawn cards and calculate the sum
 	cardValuesSum := 0
 	for _, card := range drawnCards.Cards {
-		fmt.Printf("Carta desenhada: %s, Valor: %d\n", card.Code, h.deckSvc.CardValue(card.Value))
-		cardValuesSum += h.deckSvc.CardValue(card.Value)
+		fmt.Printf("Carta desenhada: %s, Valor: %d\n", card.Code, h.deckSvc.CardValue(card.Code))
+		cardValuesSum += h.deckSvc.CardValue(card.Code)
 	}
 
 	var result string
 
 	if cardValuesSum > 21 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "soma das cartas excede 21"})
 		result = "busted"
 	} else if cardValuesSum == 21 {
 		result = "won"
@@ -109,7 +108,6 @@ func (h *GameHandler) createGameSinglePlayer(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "erro ao criar jogo"})
 		return
 	}
-
 	c.JSON(http.StatusCreated, createdGame)
 }
 
@@ -123,7 +121,7 @@ func (h *GameHandler) createGameSinglePlayer(c *gin.Context) {
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /make-move-singleplayer [post]
-func (h *GameHandler) makeMoveSinglePlayer(c *gin.Context) {
+func (h *SinglePlayerGameHandler) makeMoveSinglePlayer(c *gin.Context) {
 	var req model.MakeMoveSinglePlayerRequest
 
 	// Faz o bind do JSON para o DTO correto
