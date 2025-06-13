@@ -8,7 +8,7 @@ import { Stack } from 'expo-router';
 import Card from '../components/Card';
 import { api } from '../hooks/useApi';
 
-/* ---------- Tipos vindos da API ---------- */
+// api typing
 type Game = {
   game_id: string;
   player1_name: string;
@@ -26,7 +26,6 @@ type Game = {
   round: number;
 };
 
-/* ---------- Carta escalável ---------- */
 const ScaledCard = ({
   code, hidden, scale = 1,
 }: { code?: string; hidden?: boolean; scale?: number }) => {
@@ -38,7 +37,6 @@ const ScaledCard = ({
   );
 };
 
-/* ---------- Botão ---------- */
 const Btn = ({ title, onPress, disabled, style }: any) => (
   <TouchableOpacity
     style={[styles.btn, style, disabled && styles.btnDisabled]}
@@ -61,7 +59,6 @@ export default function Multiplayer() {
   const [overlay, setOverlay] = useState<'none' | 'preview' | 'handoff'>('none');
   const [previewHand, setPreviewHand] = useState<string[]>([]);
 
-  /* ---------- criar partida ---------- */
   async function newGame(p1: string, p2: string) {
     try {
       const { data } = await api.post<Game>('/create-game-multiplayer', {
@@ -75,7 +72,6 @@ export default function Multiplayer() {
     }
   }
 
-  /* ---------- jogar ---------- */
   async function play(move: 'draw' | 'pass') {
     if (!game || loading || overlay !== 'none') return;
     setLoading(true);
@@ -160,7 +156,7 @@ export default function Multiplayer() {
   const meScore = p1Turn ? game.player1_score : game.player2_score;
   const busted = meScore > 21;
   const finished = game.result === 'player1' || game.result === 'player2' || game.result === 'draw';
-    
+
   const myHandNow = [...meVis, meHid, ...(meExtra ?? [])].filter(Boolean);
 
   return (
@@ -258,7 +254,6 @@ export default function Multiplayer() {
   );
 }
 
-/* ---------- estilos ---------- */
 const styles = StyleSheet.create({
   full: { flex: 1 },
   fullCentered: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
