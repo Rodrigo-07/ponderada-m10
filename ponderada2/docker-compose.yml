@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  api01: &api
+    build: ./app
+    hostname: api01
+    environment:
+      - DB_DSN=postgresql://admin:123@db:5432/rinha
+    deploy:
+      resources:
+        limits:
+          cpus: "0.55"
+          memory: "170MB"
+
+  api02:
+    <<: *api
+    hostname: api02
+    deploy:
+      resources:
+        limits:
+          cpus: "0.55"
+          memory: "170MB"
+
+  nginx:
+    image: nginx:1.25-alpine
+    hostname: lb
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on: [api01, api02]
+    ports:
+      - "9999:9999"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.15"
+          memory: "60MB"
+    ulimits:
+      nofile:
+        soft: 8192
+        hard: 8192
+
+  db:
+    image: postgres:16-alpine
+    hostname: db
+    environment:
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=rinha
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: "150MB"
+
+networks:
+  default:
+    driver: bridge
+    name: rinha-falcon-2024q1

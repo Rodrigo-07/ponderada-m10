@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function Home() {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: '#173d2b' }]}>
       <Text style={styles.title}>Escolha o modo</Text>
 
       <Link href="/singleplayer" asChild>
@@ -26,4 +26,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, color: '#fff' },
   button: { backgroundColor: '#1e90ff', paddingHorizontal: 32, paddingVertical: 16, borderRadius: 8, width: 220, alignItems: 'center' },
   btnText: { color: '#fff', fontSize: 18 },
+  btn: {
+    backgroundColor: '#ffb400',
+  }
 });
