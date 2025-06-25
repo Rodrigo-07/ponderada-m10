@@ -23,6 +23,7 @@ ORDER  BY realizada_em DESC
 LIMIT 10;
 """
 
+#  teste com CTE (Common Table Expression
 sql_upsert_e_insert = """
 WITH saldo_atual AS (
     UPDATE clientes

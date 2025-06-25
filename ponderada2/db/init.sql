@@ -14,7 +14,8 @@ CREATE TABLE transacoes (
     realizada_em  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 5 clientes exigidos
+CREATE INDEX idx_cliente_id_realizada_em ON transacoes (cliente_id, realizada_em DESC);
+
 INSERT INTO clientes (id, limite, saldo) VALUES
  (1, 100000, 0),
  (2,  80000, 0),

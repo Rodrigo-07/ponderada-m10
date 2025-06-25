@@ -26,7 +26,7 @@ class TransacaoResource:
         except (KeyError, ValueError):
             raise falcon.HTTPUnprocessableEntity()
 
-        delta = valor if tipo == 'c' else -valor
+        delta = valor if tipo == 'c' else -valor # pegar se é crédito ou débito
         
         async with (await get_pool()).acquire() as conn:
             row = await conn.fetchrow(
@@ -68,7 +68,8 @@ class ExtratoResource:
             ]
         }
 
-app = falcon.asgi.App()
+# app = falcon.asgi.App()
+app = falcon.App()
 
 app.add_route('/clientes/{id:int}/transacoes', TransacaoResource())
 app.add_route('/clientes/{id:int}/extrato',     ExtratoResource())
